@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: financiaplus-backend
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${POSTGRES_DB:financiaplus}
+    username: ${POSTGRES_USER:financiaplus}
+    password: ${POSTGRES_PASSWORD:financiaplus_dev}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: 8080
+
+security:
+  customer-api-key: ${CUSTOMER_API_KEY:financiaplus-test-key}
