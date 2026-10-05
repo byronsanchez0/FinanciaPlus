@@ -56,6 +56,10 @@ button:disabled { cursor: wait; opacity: 0.65; }
 .section-heading { display: flex; justify-content: space-between; gap: 24px; align-items: start; }
 .verified-badge { flex: 0 0 auto; margin-top: 10px; padding: 6px 9px; border: 1px solid #bfdbfe; border-radius: 4px; color: var(--blue-dark); background: var(--blue-soft); font-size: 12px; font-weight: 700; }
 
+.document-options { display: flex; gap: 8px; margin: 0 0 20px; }
+.document-option { min-height: 38px; padding: 0 16px; border: 1px solid var(--gray-300); border-radius: 5px; color: var(--gray-700); background: #ffffff; font-size: 14px; font-weight: 600; }
+.document-option:hover { background: var(--gray-50); }
+
 .identity-form { display: flex; align-items: end; gap: 14px; max-width: 630px; }
 .identity-form .field { flex: 1; }
 .field { display: flex; flex-direction: column; gap: 7px; }

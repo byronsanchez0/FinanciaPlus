@@ -46,6 +46,7 @@ function App() {
       .then((savedApplication) => {
         setApplicationId(savedApplication.id);
         setForm(applicationToForm(savedApplication));
+        setIdentityVerified(true);
         setStep(2);
         setMessage("Recuperamos el borrador guardado en este dispositivo.");
       })
@@ -64,7 +65,7 @@ function App() {
     const document = form.identityNumber.trim().toUpperCase();
 
     if (!/^1234/.test(document)) {
-      setError(
+      showFlowError(
         "Documento no válido: los primeros 4 caracteres deben ser 1234.",
       );
       return;
@@ -74,15 +75,14 @@ function App() {
     setLoading(true);
 
     try {
-      const [aml, customer] = await Promise.all([
-        checkAml(document),
-        getCustomer(document),
-      ]);
+      const aml = await checkAml(document);
 
       if (aml.matched) {
-        setError("La persona aparece en la lista restrictiva y el proceso no puede continuar.");
+        showFlowError("La persona aparece en la lista restrictiva AML y el proceso no puede continuar.");
         return;
       }
+
+      const customer = await getCustomer(document);
 
       setIdentityVerified(true);
       setCustomerFound(customer.existing);
@@ -104,7 +104,7 @@ function App() {
 
       setStep(2);
     } catch (requestError) {
-      setError(requestError.message);
+      showFlowError(requestError.message);
     } finally {
       setLoading(false);
     }
@@ -119,7 +119,7 @@ function App() {
       setMessage("Avance guardado. Podrás continuar desde este dispositivo.");
       return saved;
     } catch (requestError) {
-      setError(requestError.message);
+      showFlowError(requestError.message);
       return null;
     } finally {
       setLoading(false);
@@ -147,6 +147,9 @@ function App() {
       const evaluated = await evaluateApplication(applicationId);
 
       if (evaluated.status !== "APPROVED") {
+        if (evaluated.status === "REJECTED_AML") {
+          window.alert("La solicitud fue rechazada por coincidencia en la lista AML.");
+        }
         finishWith(evaluated);
         return;
       }
@@ -154,7 +157,7 @@ function App() {
       const completed = await originateApplication(applicationId);
       finishWith(completed);
     } catch (requestError) {
-      setError(requestError.message);
+      showFlowError(requestError.message);
     } finally {
       setLoading(false);
     }
@@ -207,6 +210,24 @@ function App() {
     setMessage("");
   }
 
+  function showFlowError(message) {
+    const safeMessage = message || "No fue posible completar la solicitud.";
+    const normalizedMessage = safeMessage.toLowerCase();
+    const requiresAlert =
+      normalizedMessage.includes("documento no válido") ||
+      normalizedMessage.includes("ya existe una solicitud") ||
+      normalizedMessage.includes("lista restrictiva") ||
+      normalizedMessage.includes("lista negra") ||
+      normalizedMessage.includes("aml");
+
+    if (requiresAlert) {
+      window.alert(safeMessage);
+      return;
+    }
+
+    setError(safeMessage);
+  }
+
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -240,10 +261,15 @@ function App() {
           {step === 1 && (
             <section className="step-content">
               <p className="eyebrow">Paso 1 · Identidad</p>
-              <h2>Empecemos por tu identidad</h2>
+              <h2>Coloca tu documento</h2>
               <p className="section-copy">
                 Consultaremos si ya eres cliente y verificaremos la lista de prevención AML.
               </p>
+              <div className="document-options" aria-label="Opciones para ingresar el documento">
+                <button className="document-option" type="button" aria-disabled="true">
+                  Tomar foto
+                </button>
+              </div>
               <form className="identity-form" onSubmit={verifyIdentity}>
                 <label className="field">
                   <span>Número de documento</span>

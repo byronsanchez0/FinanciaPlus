@@ -100,8 +100,8 @@ Requisitos: Docker, Java 17 y Node.js 20 o superior.
    ```powershell
    Set-Location frontend
    Copy-Item .env.example .env
-   npm install
-   npm run dev
+   npm.cmd install
+   npm.cmd run dev
    ```
 
 5. Abre `http://localhost:5173`.
@@ -116,6 +116,20 @@ configura `VITE_API_URL` antes de compilar el frontend.
 | `1234-ALTO` | Cliente existente, score 8.50, proceso completado |
 | `1234-BAJO` | Cliente existente, score 6.40, rechazo por score |
 | `1234-AML1` | Rechazo por lista AML |
+
+## Cómo probar la aplicación web
+
+1. Abre `http://localhost:5173` y escribe un documento en el paso de identidad.
+2. Presiona **Verificar y continuar**.
+3. Prueba cada supuesto:
+
+   - **Supuesto 1 - AML:** usa `1234-AML1`. La aplicación muestra una alerta y no permite continuar.
+   - **Supuesto 2 - Cliente y score:** usa `1234-BAJO`. Los datos se completan automáticamente y, al enviar la solicitud, se rechaza porque el score es menor que 7.0.
+   - **Supuesto 3 - Geolocalización:** usa `1234-ALTO`. Simula la captura del documento y la selfie, revisa la solicitud y envíala. La solicitud se aprueba, se consulta la ubicación por IP y el proceso finaliza correctamente.
+
+Para probar el formato inválido, usa por ejemplo `5678-ALTO`. Se mostrará una alerta porque el documento no comienza con `1234`.
+
+Cada documento puede crear una sola solicitud. Si intentas utilizar nuevamente uno que ya fue guardado, la aplicación mostrará una alerta de documento duplicado.
 
 ## Endpoints principales
 
