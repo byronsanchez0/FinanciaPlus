@@ -45,13 +45,9 @@ migraciones de Flyway mantienen el esquema versionado.
 El backend es stateless. La API de clientes usa el encabezado `X-API-Key`, cuya
 clave se obtiene de `CUSTOMER_API_KEY`. La comparación se realiza en tiempo
 constante. La clave incluida en el frontend es solo para la demostración local;
-en producción no se debe distribuir un secreto en el navegador. La alternativa
-recomendada es que el frontend llame a un endpoint de onboarding autenticado y
-que el backend consuma internamente la API protegida.
 
 El identificador del borrador se guarda en `localStorage` para poder retomar la
-solicitud desde el mismo dispositivo. En producción se usaría una sesión de
-usuario autenticada, expiración, HTTPS, rate limiting y gestión de secretos.
+solicitud desde el mismo dispositivo. 
 
 ### Integraciones y puntos críticos
 
@@ -61,16 +57,7 @@ usuario autenticada, expiración, HTTPS, rate limiting y gestión de secretos.
 - Biometría se simula con 92%, por encima del mínimo de 80% de la prueba.
 - `ipapi.co` se consulta desde el backend. Una falla se registra, pero no bloquea
   la originación, tal como solicita la regla de negocio.
-- Para un sistema real se agregarían detección de documentos duplicados,
-  antivirus, almacenamiento cifrado, firma digital y un proveedor biométrico.
 
-### Eventos y logs esenciales
-
-En una versión productiva se registrarían eventos estructurados para creación y
-actualización de borradores, resultado AML, consulta de score, cambios de estado,
-intentos no autorizados y resultado de geolocalización. Los logs no deben incluir
-documentos completos, imágenes, API keys ni otros datos sensibles. Cada evento
-debe incluir un identificador de correlación y el ID de la solicitud.
 
 ## Ejecución local
 
